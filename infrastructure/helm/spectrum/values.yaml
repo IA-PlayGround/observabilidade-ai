@@ -1,0 +1,116 @@
+global:
+  environment: production
+  imageRegistry: ""
+  imagePullSecrets: []
+  storageClass: ""
+
+# ── OpenTelemetry Collector ─────────────────────────────────────
+otelCollector:
+  enabled: true
+  replicas: 2
+  image:
+    repository: otel/opentelemetry-collector-contrib
+    tag: "0.105.0"
+  resources:
+    requests: { cpu: 200m, memory: 256Mi }
+    limits: { cpu: 500m, memory: 512Mi }
+
+# ── Kafka ───────────────────────────────────────────────────────
+kafka:
+  enabled: false  # use Strimzi or Confluent operator for production
+  externalBrokers: "kafka.observability.svc:9092"
+
+# ── Redis ───────────────────────────────────────────────────────
+redis:
+  enabled: true
+  image: redis:7.2-alpine
+  persistence:
+    enabled: true
+    size: 10Gi
+
+# ── Prometheus Stack ────────────────────────────────────────────
+prometheus:
+  enabled: false  # use kube-prometheus-stack for production
+  externalUrl: "http://prometheus-operated.monitoring.svc:9090"
+
+tempo:
+  enabled: true
+  image:
+    repository: grafana/tempo
+    tag: "2.5.0"
+  resources:
+    requests: { cpu: 500m, memory: 1Gi }
+    limits: { cpu: 2, memory: 2Gi }
+  persistence:
+    size: 50Gi
+
+loki:
+  enabled: true
+  image:
+    repository: grafana/loki
+    tag: "3.1.0"
+  resources:
+    requests: { cpu: 250m, memory: 512Mi }
+    limits: { cpu: 1, memory: 1Gi }
+  persistence:
+    size: 50Gi
+
+grafana:
+  enabled: true
+  image:
+    repository: grafana/grafana
+    tag: "11.0.0"
+  adminPassword: "spectrum"
+  resources:
+    requests: { cpu: 100m, memory: 256Mi }
+    limits: { cpu: 500m, memory: 512Mi }
+
+# ── Spectrum Services ───────────────────────────────────────────
+correlationEngine:
+  replicas: 2
+  image:
+    repository: spectrum/correlation-engine
+    tag: latest
+  resources:
+    requests: { cpu: 250m, memory: 256Mi }
+    limits: { cpu: 1, memory: 512Mi }
+  correlationWindow: 120
+
+aiEngine:
+  replicas: 2
+  image:
+    repository: spectrum/ai-engine
+    tag: latest
+  resources:
+    requests: { cpu: 250m, memory: 256Mi }
+    limits: { cpu: 1, memory: 512Mi }
+  llmBackend: openai
+  llmTimeout: 30s
+  openaiKey: ""
+  anthropicKey: ""
+
+apiGateway:
+  replicas: 2
+  image:
+    repository: spectrum/api-gateway
+    tag: latest
+  resources:
+    requests: { cpu: 250m, memory: 256Mi }
+    limits: { cpu: 500m, memory: 512Mi }
+  jwtSecret: "change-me-in-production"
+  corsOrigins: "*"
+
+adminUi:
+  enabled: true
+  replicas: 1
+  image:
+    repository: spectrum/admin-ui
+    tag: latest
+
+# ── Autoscaling ─────────────────────────────────────────────────
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPU: 70
+  targetMemory: 80

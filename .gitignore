@@ -1,0 +1,55 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+bin/
+dist/
+
+# Test binary
+*.test
+
+# Go
+*.out
+vendor/
+
+# Node
+node_modules/
+.next/
+build/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+override.tf
+
+# Docker
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Grafana provisioning
+infrastructure/docker/grafana/grafana.db
+
+# Temp
+tmp/
+.cache/
+
+# Internal docs
+PRD-Observabilidade-AI.md

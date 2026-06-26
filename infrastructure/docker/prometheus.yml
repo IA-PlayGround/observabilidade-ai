@@ -1,0 +1,43 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: spectrum-local
+    environment: development
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
+
+rule_files:
+  - /etc/prometheus/rules/*.yml
+
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  - job_name: otel-collector
+    static_configs:
+      - targets: ["otel-collector:8888"]
+
+  - job_name: correlation-engine
+    static_configs:
+      - targets: ["correlation-engine:8081"]
+    metrics_path: /metrics
+
+  - job_name: ai-engine
+    static_configs:
+      - targets: ["ai-engine:8082"]
+    metrics_path: /metrics
+
+  - job_name: api-gateway
+    static_configs:
+      - targets: ["api-gateway:8080"]
+    metrics_path: /metrics
+
+  - job_name: demo-services
+    static_configs:
+      - targets: ["go-service:8080", "node-service:8080"]
+    metrics_path: /metrics

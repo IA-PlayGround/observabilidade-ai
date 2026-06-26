@@ -1,0 +1,133 @@
+{
+  "annotations": { "list": [{ "builtIn": 1, "datasource": { "type": "grafana", "uid": "-- Grafana --" }, "enable": true, "hide": true, "name": "Deploy Markers", "type": "dashboard", "iconColor": "orange" }] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 2,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "fillOpacity": 20, "lineWidth": 2, "spanNulls": true, "thresholdsStyle": { "mode": "line" } },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 10 }, { "color": "red", "value": 20 }] },
+          "unit": "percent"
+        }
+      },
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 0 },
+      "id": 1,
+      "options": { "legend": { "showLegend": true, "placement": "bottom" } },
+      "targets": [
+        {
+          "expr": "100 * (sum(rate(http_server_duration_milliseconds_count{service_name=\"$service\", http_status_code=~\"5..\"}[5m] offset $offset)) by (service_name) / sum(rate(http_server_duration_milliseconds_count{service_name=\"$service\"}[5m] offset $offset)) by (service_name))",
+          "legendFormat": "Pre-deploy",
+          "refId": "A"
+        },
+        {
+          "expr": "100 * (sum(rate(http_server_duration_milliseconds_count{service_name=\"$service\", http_status_code=~\"5..\"}[5m])) by (service_name) / sum(rate(http_server_duration_milliseconds_count{service_name=\"$service\"}[5m])) by (service_name))",
+          "legendFormat": "Post-deploy",
+          "refId": "B"
+        }
+      ],
+      "title": "Error Rate — Pre vs Post Deploy",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "fillOpacity": 20, "lineWidth": 2, "spanNulls": true },
+          "unit": "ms"
+        }
+      },
+      "gridPos": { "h": 10, "w": 12, "x": 0, "y": 10 },
+      "id": 2,
+      "options": { "legend": { "showLegend": true, "placement": "bottom" } },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_server_duration_milliseconds_bucket{service_name=\"$service\"}[5m] offset $offset)) by (le))",
+          "legendFormat": "Pre-deploy p95",
+          "refId": "A"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_server_duration_milliseconds_bucket{service_name=\"$service\"}[5m])) by (le))",
+          "legendFormat": "Post-deploy p95",
+          "refId": "B"
+        }
+      ],
+      "title": "Latency p95 — Pre vs Post",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "fillOpacity": 20, "lineWidth": 2, "spanNulls": true },
+          "unit": "reqps"
+        }
+      },
+      "gridPos": { "h": 10, "w": 12, "x": 12, "y": 10 },
+      "id": 3,
+      "options": { "legend": { "showLegend": true, "placement": "bottom" } },
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_duration_milliseconds_count{service_name=\"$service\"}[5m] offset $offset))",
+          "legendFormat": "Pre-deploy",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(rate(http_server_duration_milliseconds_count{service_name=\"$service\"}[5m]))",
+          "legendFormat": "Post-deploy",
+          "refId": "B"
+        }
+      ],
+      "title": "Request Rate — Pre vs Post",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 20 },
+      "id": 4,
+      "options": { "dedupStrategy": "none", "showTime": true, "sortOrder": "Descending", "wrapLogMessage": true },
+      "targets": [
+        {
+          "expr": "{service_name=\"$service\"} | json | level=~\"error|ERROR\"",
+          "refId": "A"
+        }
+      ],
+      "title": "Post-Deploy Error Logs",
+      "type": "logs"
+    }
+  ],
+  "refresh": "1m",
+  "schemaVersion": 39,
+  "tags": ["spectrum", "release", "deploy"],
+  "templating": {
+    "list": [
+      {
+        "current": { "text": "", "value": "" },
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "definition": "label_values(http_server_duration_milliseconds_count, service_name)",
+        "label": "Service",
+        "name": "service",
+        "query": { "query": "label_values(http_server_duration_milliseconds_count, service_name)", "refId": "A" },
+        "refresh": 1,
+        "type": "query"
+      },
+      {
+        "current": { "text": "1h", "value": "1h" },
+        "label": "Comparison Window",
+        "name": "offset",
+        "query": "30m, 1h, 2h, 6h",
+        "type": "custom"
+      }
+    ]
+  },
+  "time": { "from": "now-3h", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Release Analysis",
+  "uid": "spectrum-release-analysis",
+  "version": 1
+}

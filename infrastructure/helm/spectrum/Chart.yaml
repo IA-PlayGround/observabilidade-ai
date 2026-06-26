@@ -1,0 +1,17 @@
+apiVersion: v2
+name: spectrum
+description: Spectrum — AI-powered observability platform with OpenTelemetry, Grafana, and MCP
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+keywords:
+  - observability
+  - opentelemetry
+  - ai
+  - grafana
+  - mcp
+maintainers:
+  - name: Spectrum Team
+    email: platform@spectrum.dev
+sources:
+  - https://github.com/spectrum/observabilidade-ai

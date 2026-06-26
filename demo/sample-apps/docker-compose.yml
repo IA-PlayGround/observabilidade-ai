@@ -1,0 +1,54 @@
+version: "3.9"
+
+services:
+  go-service:
+    build:
+      context: ./go-service
+      dockerfile: Dockerfile
+    ports:
+      - "8083:8083"
+    environment:
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_SERVICE_NAME: checkout
+      OTEL_RESOURCE_ATTRIBUTES: "service.version=1.0.0,deployment.environment=demo"
+    networks:
+      - observability
+    depends_on:
+      - otel-collector
+
+  node-service:
+    build:
+      context: ./node-service
+      dockerfile: Dockerfile
+    ports:
+      - "8084:8084"
+    environment:
+      NODE_OPTIONS: "--require @opentelemetry/auto-instrumentations-node/register"
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_SERVICE_NAME: catalog
+      OTEL_RESOURCE_ATTRIBUTES: "service.version=1.0.0,deployment.environment=demo"
+    networks:
+      - observability
+    depends_on:
+      - otel-collector
+
+  load-generator:
+    image: alpine/curl:latest
+    command: >
+      sh -c '
+      while true; do
+        curl -s http://go-service:8083/checkout || true;
+        curl -s http://node-service:8084/products || true;
+        curl -s http://node-service:8084/products/1 || true;
+        sleep 2;
+      done'
+    networks:
+      - observability
+    depends_on:
+      - go-service
+      - node-service
+
+networks:
+  observability:
+    external: true
+    name: observabilidade-ai_default
