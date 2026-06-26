@@ -1,6 +1,6 @@
 # Spectrum — Observability Platform
 
-Unified observability platform with AI-powered diagnostics, automatic correlation of metrics/traces/logs via OpenTelemetry, and native Grafana integration. Uses **Model Context Protocol (MCP)** to connect LLMs (GPT-4, Claude) for automated incident diagnosis, release analysis, and postmortem reports.
+Plataforma unificada de observabilidade com diagnóstico por IA, correlação automática de métricas, traces e logs via OpenTelemetry e integração nativa com Grafana. Utiliza o **Model Context Protocol (MCP)** para conectar LLMs (GPT-4, Claude) e automatizar diagnósticos de incidentes, análise de releases e geração de relatórios de postmortem.
 
 ## O que é o Spectrum
 
