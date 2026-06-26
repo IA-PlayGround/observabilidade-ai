@@ -2,6 +2,35 @@
 
 Unified observability platform with AI-powered diagnostics, automatic correlation of metrics/traces/logs via OpenTelemetry, and native Grafana integration. Uses **Model Context Protocol (MCP)** to connect LLMs (GPT-4, Claude) for automated incident diagnosis, release analysis, and postmortem reports.
 
+## O que é o Spectrum
+
+### 1. Coleta telemetria de qualquer aplicação
+Recebe métricas, traces e logs via **OpenTelemetry** (padrão da indústria). Qualquer aplicação Go, Node.js, Python, Java etc. pode enviar dados simplesmente configurando uma variável de ambiente — sem mudança de código.
+
+### 2. Armazena e correlaciona os dados
+- **Prometheus** → métricas (latência, erros, CPU, etc.)
+- **Tempo** → traces distribuídos (quem chamou quem, quanto demorou)
+- **Loki** → logs
+- **Kafka + Redis** → o **Correlation Engine** liga os três por `traceId`: dado um trace, você vê as métricas e logs daquele exato momento
+
+### 3. Usa IA para diagnosticar problemas automaticamente
+O **AI Engine** recebe o contexto correlacionado e consulta **GPT-4 ou Claude** para:
+- **Diagnóstico de incidente** — identifica a causa raiz com base em traces, métricas e logs
+- **Relatório de postmortem** — gera automaticamente timeline, evidências e recomendações
+- **Análise de deploy** — compara métricas antes/depois de um release e detecta regressões
+- **Consulta livre** — responde perguntas em linguagem natural sobre o sistema
+
+### 4. Aciona via webhooks do CI/CD
+Quando um deploy acontece (`POST /webhooks/deploy`), o sistema coleta automaticamente métricas pré/pós e solicita análise à IA. Alertas do AlertManager ou PagerDuty disparam diagnóstico automático via `POST /webhooks/alert`.
+
+### 5. Dashboards prontos no Grafana
+Três dashboards pré-provisionados: visão geral de serviços, relatório de incidentes e análise de release — disponíveis imediatamente após `docker compose up`.
+
+### 6. Admin UI em React
+Painel web para gerenciar fontes de dados, executar diagnósticos manualmente, explorar correlações e monitorar a saúde da plataforma.
+
+> **Em uma frase:** É um sistema de observabilidade que não só coleta métricas, traces e logs, mas usa LLMs para **interpretar** esses dados e **explicar** o que está acontecendo — automaticamente, quando um alerta dispara ou um deploy ocorre.
+
 ## Architecture
 
 ```
